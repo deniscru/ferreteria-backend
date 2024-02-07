@@ -1,0 +1,21 @@
+Puede pasar que cambiemos el modelo de objetos durante la escritura de código, 
+pero que pasará con la BBDD? Debemos migrarla también para que concuerde el modelo
+relacional al modelo de objetos.
+
+Para eso debemos configurar Alembic, que es una herramienta que nos permite migrar 
+la BBDD de forma automática.
+
+Alembic ya está inicializado, con lo que podemos trabajar
+
+Si nosotros hemos modificado el modelo de objetos, debemos generar un script de migración,
+para que la BBDD se actualice a la nueva versión del modelo de objetos.
+
+Para ello, debemos ejecutar el siguiente comando:
+alembic revision --autogenerate -m "Mensaje de la migración"
+
+El comando anterior, nos generará un script de migración, que debemos ejecutar para que la
+BBDD se actualice a la nueva versión del modelo de objetos.
+
+Ahora, si alguien ha actualizado el modelo de datos y debemos actualizar nuestra BBDD,
+debemos ejecutar el siguiente comando:
+alembic upgrade head

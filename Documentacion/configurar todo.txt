@@ -1,0 +1,8 @@
+1- Instalar Python 3.10.5. Esto instalará tanto python como PIP (El gestor de paquetes)
+2- Crear el virtual environment (el entorno donde estarán nuestras librerías). Para ello en una consola pararse en el directorio base del proyecto y tirar py -m venv {"Nombre de la carpeta donde estarán las librerías"} . Normalmente la carpeta se llamará venv también, con lo que el comando debería ser py -m venv
+3- Una vez ahí, por consola ir a la carpeta venv/scripts y ejecutar .\activate para ejecutar el etorno virtual. Debería figurar ahora (venv) en la parte izquierda
+4- Las librerías a instalar están en el archivo requirements.txt, 
+    con lo que para instalarlas nos debemos parar en el directorio raíz y ejecutar 
+        pip install -r requirements.txt . Esto instalará automáticamente todas las librerías a utilizar
+5- para levantar el servidor, debemos tirar en consola uvicorn main:app --reload
+6- La consola nos dirá el server y port al que debemos conectarnos
