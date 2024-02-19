@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from bbdd import engine
 from Models.Tipo import Tipo
 from Models.Producto import Producto
+from datetime import datetime
 
 
 def seed():
@@ -38,6 +39,7 @@ def productos():
             imagen="avsevsdvsdfvsdfv",
             tipo_id=3,
             tipo=ferre,
+            date=datetime.now(),
         )
         p2 = Producto(
             nombre="metro",
@@ -50,6 +52,7 @@ def productos():
             imagen="sdvedgvcsdcsdcsd",
             tipo_id=3,
             tipo=ferre,
+            date=datetime.now(),
         )
         p3 = Producto(
             nombre="destornillador filip",
@@ -62,6 +65,7 @@ def productos():
             imagen="avsvsdfvsfdv",
             tipo_id=3,
             tipo=ferre,
+            date=datetime.now(),
         )
         p4 = Producto(
             nombre="Codo 90 grados",
@@ -74,6 +78,7 @@ def productos():
             imagen="csfsvsf",
             tipo_id=2,
             tipo=plom,
+            date=datetime.now(),
         )
         p5 = Producto(
             nombre="teflon",
@@ -86,6 +91,7 @@ def productos():
             imagen="sadfcacsdfcfsd",
             tipo_id=2,
             tipo=plom,
+            date=datetime.now(),
         )
         p6 = Producto(
             nombre="caño de luz",
@@ -98,6 +104,7 @@ def productos():
             imagen="vsadvcsadcasd",
             tipo_id=1,
             tipo=elec,
+            date=datetime.now(),
         )
         p7 = Producto(
             nombre="toma hembra",
@@ -110,6 +117,7 @@ def productos():
             imagen="sadsadcsa",
             tipo_id=1,
             tipo=elec,
+            date=datetime.now(),
         )
         p8 = Producto(
             nombre="cloro",
@@ -122,6 +130,7 @@ def productos():
             imagen="fasdcsadc",
             tipo_id=4,
             tipo=lim,
+            date=datetime.now(),
         )
         p9 = Producto(
             nombre="magistral",
@@ -134,6 +143,7 @@ def productos():
             imagen="ffasdf",
             tipo_id=4,
             tipo=lim,
+            date=datetime.now(),
         )
         p10 = Producto(
             nombre="jabon",
@@ -146,6 +156,7 @@ def productos():
             imagen="csdacasdcas",
             tipo_id=1,
             tipo=elec,
+            date=datetime.now(),
         )
         session.add_all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
         session.commit()

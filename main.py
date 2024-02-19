@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from Models import *
 from bbdd import engine, Base
 from seeder import seed, productos
-from Routing import R_Producto
+from Routing import R_Producto, R_Tipo
 
 tags_metadata = []
 
@@ -22,5 +22,6 @@ app.add_middleware(
 )
 
 app.include_router(R_Producto.router)
+app.include_router(R_Tipo.router)
 # seed()
 # productos()

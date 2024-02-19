@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sqlalchemy import String, ForeignKey, Boolean, Column, Integer, Float
+from sqlalchemy import String, ForeignKey, Boolean, Column, Integer, Float, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.mysql import LONGTEXT
 from bbdd import Base
@@ -18,6 +18,7 @@ class Producto(Base):
     cant = Column(Integer)
     logico = Column(Boolean, default=True)
     imagen = Column(LONGTEXT)
+    date = Column(DateTime)
     tipo_id = Column(Integer, ForeignKey("tipos.id"))
     tipo = relationship("Tipo", lazy="joined")
 
@@ -33,6 +34,7 @@ class Producto(Base):
         imagen,
         tipo_id,
         tipo,
+        date,
     ):
         self.nombre = nombre
         self.nombre_alias = nombre_alias
@@ -44,6 +46,7 @@ class Producto(Base):
         self.imagen = imagen
         self.tipo_id = tipo_id
         self.tipo = tipo
+        self.date = date
 
     def __repr__(self):
         return {"id": self.id, "nombre": self.nombre, "descripcion": self.descripcion}

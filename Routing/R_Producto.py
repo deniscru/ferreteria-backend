@@ -7,6 +7,7 @@ from bbdd import engine
 from Models.Producto import Producto
 from Models.Tipo import Tipo
 from fastapi.responses import JSONResponse
+from datetime import datetime
 import paginate
 
 router = APIRouter(
@@ -38,6 +39,7 @@ class requestProductoEdi(BaseModel):
     precio_de_venta: float
     cant: int
     imagen: str
+    date: datetime
 
 
 class requestProductoPrecio(BaseModel):
@@ -171,10 +173,10 @@ def actualizarPrecioProductos(request: requestProductoPrecio):
 def obtenerProducto(id):
     """obtener un producto segun su id"""
     db = Session(engine)
-    menu = db.query(Producto).get(id)
+    prod = db.query(Producto).get(id)
     db.close()
-    if menu:
-        return menu
+    if prod:
+        return prod
     else:
         return JSONResponse(
             status_code=404,
