@@ -17,7 +17,6 @@ class Producto(Base):
     precio_de_venta = Column(Float)
     cant = Column(Integer)
     logico = Column(Boolean, default=True)
-    imagen = Column(LONGTEXT)
     date = Column(DateTime)
     tipo_id = Column(Integer, ForeignKey("tipos.id"))
     tipo = relationship("Tipo", lazy="joined")
@@ -31,7 +30,6 @@ class Producto(Base):
         precio_de_compra,
         precio_de_venta,
         cant,
-        imagen,
         tipo_id,
         tipo,
         date,
@@ -43,7 +41,6 @@ class Producto(Base):
         self.precio_de_compra = precio_de_compra
         self.precio_de_venta = precio_de_venta
         self.cant = cant
-        self.imagen = imagen
         self.tipo_id = tipo_id
         self.tipo = tipo
         self.date = date

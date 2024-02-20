@@ -21,25 +21,10 @@ class requestProducto(BaseModel):
     nombre_alias: str
     descripcion: str
     medida: str
-    idVisible: str
     precio_de_compra: float
     precio_de_venta: float
     cant: int
-    imagen: str
     tipo_id: int
-
-
-class requestProductoEdi(BaseModel):
-    nombre: str
-    nombre_alias: str
-    descripcion: str
-    medida: str
-    idVisible: str
-    precio_de_compra: float
-    precio_de_venta: float
-    cant: int
-    imagen: str
-    date: datetime
 
 
 class requestProductoPrecio(BaseModel):
@@ -55,7 +40,6 @@ def altaProducto(requestData: requestProducto):
     """se va a realizar una carga de un producto"""
     db = Session(engine)
     tipo = db.query(Tipo).get(requestData.tipo_id)
-    db.close()
     if not tipo:
         return JSONResponse(
             status_code=404,
@@ -69,20 +53,22 @@ def altaProducto(requestData: requestProducto):
         requestData.precio_de_compra,
         requestData.precio_de_venta,
         requestData.cant,
-        requestData.imagen,
         requestData.tipo_id,
         tipo,
+        date=datetime.now(),
     )
-    db = Session(engine)
     # Checkear q no exista un Producto con el mismo nombre
-    if db.query(exists().where(Producto.nombre == requestData.nombre)).scalar():
+    if db.query(exists().where(Producto.nombre == producto.nombre)).scalar():
         return JSONResponse(
             status_code=400,
-            content={"error": f"Ya existe un menu con el nombre: {requestData.nombre}"},
+            content={
+                "error": f"Ya existe el producto con el nombre: {requestData.nombre}"
+            },
         )
     db.add(producto)
     db.commit()
     db.close()
+
     return JSONResponse(
         status_code=200, content={"mensaje": "Menú agregado correctamente"}
     )
@@ -108,7 +94,7 @@ def bajaProducto(id):
 
 
 @router.post("/actualizarProducto/{id}")
-def actualizarProducto(id, request: requestProductoEdi):
+def actualizarProducto(id, request: requestProducto):
     """se va a actualizar un producto en particular"""
     db = Session(engine)
     if db.query(
@@ -124,7 +110,6 @@ def actualizarProducto(id, request: requestProductoEdi):
         update(Producto)
         .where(Producto.id == id)
         .values(
-            logico=False,
             nombre=request.nombre,
             nombre_alias=request.nombre_alias,
             descripcion=request.descripcion,
@@ -132,7 +117,6 @@ def actualizarProducto(id, request: requestProductoEdi):
             precio_de_compra=request.precio_de_compra,
             precio_de_venta=request.precio_de_venta,
             cant=request.cant,
-            imagen=request.imagen,
         )
     )
     db.execute(stmt)

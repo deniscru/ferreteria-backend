@@ -6,7 +6,6 @@ from seeder import seed, productos
 from Routing import R_Producto, R_Tipo
 
 tags_metadata = []
-
 # Base.metadata.create_all(engine)
 
 app = FastAPI()
