@@ -1,1 +1,1 @@
-__all__ = ["Factura", "Producto", "Tipo"]
+__all__ = ["Factura", "Producto", "Tipo", "Art_Limpieza", "Plomeria"]

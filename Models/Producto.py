@@ -10,9 +10,7 @@ class Producto(Base):
 
     id = Column(Integer, primary_key=True)
     nombre = Column(String(300))
-    nombre_alias = Column(String(300))
     descripcion = Column(String(300))
-    medida = Column(String(20))
     precio_de_compra = Column(Float)
     precio_de_venta = Column(Float)
     cant = Column(Integer)
@@ -24,9 +22,7 @@ class Producto(Base):
     def __init__(
         self,
         nombre,
-        nombre_alias,
         descripcion,
-        medida,
         precio_de_compra,
         precio_de_venta,
         cant,
@@ -35,9 +31,7 @@ class Producto(Base):
         date,
     ):
         self.nombre = nombre
-        self.nombre_alias = nombre_alias
         self.descripcion = descripcion
-        self.medida = medida
         self.precio_de_compra = precio_de_compra
         self.precio_de_venta = precio_de_venta
         self.cant = cant

@@ -18,9 +18,7 @@ router = APIRouter(
 
 class requestProducto(BaseModel):
     nombre: str
-    nombre_alias: str
     descripcion: str
-    medida: str
     precio_de_compra: float
     precio_de_venta: float
     cant: int
@@ -47,9 +45,7 @@ def altaProducto(requestData: requestProducto):
         )
     producto = Producto(
         requestData.nombre,
-        requestData.nombre_alias,
         requestData.descripcion,
-        requestData.medida,
         requestData.precio_de_compra,
         requestData.precio_de_venta,
         requestData.cant,
@@ -111,9 +107,7 @@ def actualizarProducto(id, request: requestProducto):
         .where(Producto.id == id)
         .values(
             nombre=request.nombre,
-            nombre_alias=request.nombre_alias,
             descripcion=request.descripcion,
-            medida=request.medida,
             precio_de_compra=request.precio_de_compra,
             precio_de_venta=request.precio_de_venta,
             cant=request.cant,

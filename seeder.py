@@ -2,17 +2,18 @@ from sqlalchemy.orm import Session
 from bbdd import engine
 from Models.Tipo import Tipo
 from Models.Producto import Producto
+from Models.Tipo_Material import Tipo_Material
 from datetime import datetime
 
 
-def seed():
+def add_tipos():
     with Session(engine) as session:
-        elec = Tipo(nombre="Electricidad")
-        plo = Tipo(nombre="Plomeria")
-        ferre = Tipo(nombre="Ferreteria")
-        lim = Tipo(nombre="Limpieza")
+        t1 = Tipo(nombre="Electricidad")
+        t2 = Tipo(nombre="Plomeria")
+        t3 = Tipo(nombre="Ferreteria")
+        t4 = Tipo(nombre="Limpieza")
 
-        session.add_all([elec, plo, ferre, lim])
+        session.add_all([t1, t2, t3, t4])
         session.commit()
         session.close()
 
@@ -21,7 +22,19 @@ def seed():
     )"""
 
 
-def productos():
+def add_tipos_material():
+    with Session(engine) as session:
+        t1 = Tipo_Material(nombre="politileno")
+        t2 = Tipo_Material(nombre="termo fusion")
+        t3 = Tipo_Material(nombre="polipropileno o pp")
+        t4 = Tipo_Material(nombre="PVP")
+        t5 = Tipo_Material(nombre="awaduc")
+    session.add_all([t1, t2, t3, t4, t5])
+    session.commit()
+    session.close()
+
+
+def add_productos():
     with Session(engine) as session:
         ferre = session.query(Tipo).get(3)
         elec = session.query(Tipo).get(1)
@@ -30,9 +43,7 @@ def productos():
 
         p1 = Producto(
             nombre="Martillo",
-            nombre_alias="Martillo pico loro",
             descripcion="Martillo para carpinteria",
-            medida=None,
             precio_de_compra=12.000,
             precio_de_venta=15.000,
             cant=3,
@@ -42,9 +53,7 @@ def productos():
         )
         p2 = Producto(
             nombre="metro",
-            nombre_alias="metro amarillo",
             descripcion="metro para medir",
-            medida=5,
             precio_de_compra=8.000,
             precio_de_venta=12.000,
             cant=4,
@@ -54,9 +63,7 @@ def productos():
         )
         p3 = Producto(
             nombre="destornillador filip",
-            nombre_alias="destornillador plano",
             descripcion="destornillador de punta plana",
-            medida=None,
             precio_de_compra=1.000,
             precio_de_venta=2.000,
             cant=6,
@@ -66,9 +73,7 @@ def productos():
         )
         p4 = Producto(
             nombre="Codo 90 grados",
-            nombre_alias="codo de pvc",
             descripcion="codo de plomeria con angulo de 90 grados",
-            medida=None,
             precio_de_compra=1.500,
             precio_de_venta=2.200,
             cant=10,
@@ -78,9 +83,7 @@ def productos():
         )
         p5 = Producto(
             nombre="teflon",
-            nombre_alias="teplon para rosca",
             descripcion="",
-            medida=5,
             precio_de_compra=1.000,
             precio_de_venta=2.100,
             cant=20,
@@ -90,9 +93,7 @@ def productos():
         )
         p6 = Producto(
             nombre="caño de luz",
-            nombre_alias="caño de luz electrica reforsada",
             descripcion="",
-            medida=1.5,
             precio_de_compra=23.750,
             precio_de_venta=25.000,
             cant=20,
@@ -102,9 +103,7 @@ def productos():
         )
         p7 = Producto(
             nombre="toma hembra",
-            nombre_alias="toma hembra sin cable",
             descripcion="toma para alargue",
-            medida=None,
             precio_de_compra=400,
             precio_de_venta=800,
             cant=23,
@@ -114,9 +113,7 @@ def productos():
         )
         p8 = Producto(
             nombre="cloro",
-            nombre_alias="",
             descripcion="",
-            medida=None,
             precio_de_compra=5.000,
             precio_de_venta=6.000,
             cant=20,
@@ -126,9 +123,7 @@ def productos():
         )
         p9 = Producto(
             nombre="magistral",
-            nombre_alias="",
             descripcion="",
-            medida=None,
             precio_de_compra=7.000,
             precio_de_venta=10.000,
             cant=24,
@@ -138,9 +133,7 @@ def productos():
         )
         p10 = Producto(
             nombre="jabon",
-            nombre_alias="jabon de mano",
             descripcion="jabon de mano ceco",
-            medida=None,
             precio_de_compra=1.000,
             precio_de_venta=2.300,
             cant=23,
