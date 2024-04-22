@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import exists, select
+from sqlalchemy.sql import exists
 from sqlalchemy import update
 from pydantic import BaseModel
 from bbdd import engine
@@ -17,6 +17,16 @@ router = APIRouter(
 
 
 class requestProducto(BaseModel):
+    nombre: str
+    descripcion: str
+    precio_de_compra: float
+    precio_de_venta: float
+    cant: int
+    tipo_id: int
+
+
+class requestProductoEdit(BaseModel):
+    id: int
     nombre: str
     descripcion: str
     precio_de_compra: float
@@ -89,28 +99,32 @@ def bajaProducto(id):
     )
 
 
-@router.post("/actualizarProducto/{id}")
-def actualizarProducto(id, request: requestProducto):
+@router.post("/actualizar/data/campos")
+def actualizarProductoCampos(request: requestProductoEdit):
     """se va a actualizar un producto en particular"""
+    print(request)
     db = Session(engine)
     if db.query(
-        exists().where(Producto.nombre == request.nombre).where(Producto.id != id)
+        exists()
+        .where(Producto.nombre == request.nombre)
+        .where(Producto.id != request.id)
     ).scalar():
         return JSONResponse(
             status_code=400,
             content={
-                "error": f"No se puede editar el producto con el id: {id}, por que ya existe un producto con el mismo nombre"
+                "error": f"No se puede editar el producto con el id: {request.id}, por que ya existe un producto con el mismo nombre"
             },
         )
     stmt = (
         update(Producto)
-        .where(Producto.id == id)
+        .where(Producto.id == request.id)
         .values(
             nombre=request.nombre,
             descripcion=request.descripcion,
             precio_de_compra=request.precio_de_compra,
             precio_de_venta=request.precio_de_venta,
             cant=request.cant,
+            tipo_id=request.tipo_id,
         )
     )
     db.execute(stmt)
@@ -122,7 +136,7 @@ def actualizarProducto(id, request: requestProducto):
     )
 
 
-@router.post("/actualizarProductosPrecio/")
+@router.post("/actualizar/data")
 def actualizarPrecioProductos(request: requestProductoPrecio):
     """se va a actualizar el precio de cada producto segun el tipo seleccionado"""
     db = Session(engine)
@@ -169,37 +183,109 @@ def listaProducto(page):
     lista_productos = db.query(Producto).filter(Producto.logico == True).all()
     db.close()
     lista_paginada = paginate.Page(lista_productos, page=page, items_per_page=6)
-    return {"items": lista_paginada, "total_paginas": lista_paginada.page_count}
+    print("listado normal")
+    return {
+        "items": lista_paginada,
+        "total_paginas": lista_paginada.page_count,
+        "siguiente": lista_paginada.next_page,
+        "anterior": lista_paginada.previous_page,
+        "actual": page,
+    }
 
 
-@router.get("/listaTipo/{page}/{tipo}")
+@router.get("/lista/Tipo/{page}/{tipo}")
 def listaProductoTipo(page, tipo):
     """obtener todos los productos segun el tipo"""
-    print(tipo, page)
     db = Session(engine)
     lista_productos = (
         db.query(Producto)
         .filter(Producto.logico == True)
         .filter(Producto.tipo_id == tipo)
+        .all()
+    )
+    print("filtro por tipo")
+    db.close()
+    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=6)
+
+    return {
+        "items": lista_paginada,
+        "total_paginas": lista_paginada.page_count,
+        "siguiente": lista_paginada.next_page,
+        "anterior": lista_paginada.previous_page,
+        "actual": page,
+    }
+
+
+@router.get("/lista/Nombre/{page}/{nombre}")
+def listaProductoNombre(page, nombre):
+    """obtener todos los productos segun el tipo"""
+    db = Session(engine)
+    lista_productos = (
+        db.query(Producto)
+        .filter(Producto.logico == True)
+        .filter(Producto.nombre.like("%" + nombre + "%"))
         .all()
     )
     db.close()
     lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=6)
-    print(lista_paginada)
-    return {"items": lista_paginada, "total_paginas": lista_paginada.page_count}
+    print("filtro por nombre")
+
+    return {
+        "items": lista_paginada,
+        "total_paginas": lista_paginada.page_count,
+        "siguiente": lista_paginada.next_page,
+        "anterior": lista_paginada.previous_page,
+        "actual": page,
+    }
 
 
-@router.get("/listaBusqueda/{page}/{tipo}")
-def buscarProductos(page, tipo, request: requestBusqueda):
-    """se va a realizar una busqueda de un producto o productos segun su tipo y nombre"""
+@router.get("/lista/TipoYNombre/{page}/{tipo}/{nombre}")
+def listaProductoTipoYNombre(page, tipo, nombre):
+    """obtener todos los productos segun el tipo"""
     db = Session(engine)
     lista_productos = (
         db.query(Producto)
         .filter(Producto.logico == True)
         .filter(Producto.tipo_id == tipo)
-        .filter(Producto.nombre == request.nombre)
+        .filter(Producto.nombre.like("%" + nombre + "%"))
         .all()
     )
     db.close()
-    lista_paginada = paginate.Page(lista_productos, page=page, items_per_page=6)
-    return {"items": lista_paginada, "total_paginas": lista_paginada.page_count}
+    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=6)
+    print("filtro por tipo y nombre")
+
+    return {
+        "items": lista_paginada,
+        "total_paginas": lista_paginada.page_count,
+        "siguiente": lista_paginada.next_page,
+        "anterior": lista_paginada.previous_page,
+        "actual": page,
+    }
+
+
+@router.get("/lista/preciosTipo/{tipo}")
+def obtenerlistaPreciosTipo(tipo):
+    """obtener todos los productos segun el tipo"""
+    db = Session(engine)
+    lista_productos = (
+        db.query(Producto)
+        .filter(Producto.logico == True)
+        .filter(Producto.tipo_id == tipo)
+        .all()
+    )
+    db.close()
+    return {
+        "items": lista_productos,
+    }
+
+
+@router.get("/lista/precios")
+def obtenerListaPrecios():
+    """obtener todos los productos sin paginacion"""
+    db = Session(engine)
+    lista_productos = db.query(Producto).filter(Producto.logico == True).all()
+    db.close()
+    print(lista_productos)
+    return {
+        "items": "string",
+    }

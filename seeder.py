@@ -144,3 +144,61 @@ def add_productos():
         session.add_all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
         session.commit()
         session.close()
+
+
+def ferreteria():
+    with Session(engine) as session:
+        ferre = session.query(Tipo).get(3)
+        p1 = Producto(
+            nombre="metro 3m",
+            descripcion="metro para medir",
+            precio_de_compra=8.000,
+            precio_de_venta=12.000,
+            cant=4,
+            tipo_id=3,
+            tipo=ferre,
+            date=datetime.now(),
+        )
+        p2 = Producto(
+            nombre="metro 5m",
+            descripcion="metro para medir",
+            precio_de_compra=8.000,
+            precio_de_venta=12.000,
+            cant=4,
+            tipo_id=3,
+            tipo=ferre,
+            date=datetime.now(),
+        )
+        p3 = Producto(
+            nombre="metro 8m",
+            descripcion="metro para medir",
+            precio_de_compra=8.000,
+            precio_de_venta=12.000,
+            cant=4,
+            tipo_id=3,
+            tipo=ferre,
+            date=datetime.now(),
+        )
+        p4 = Producto(
+            nombre="metro 10m",
+            descripcion="metro para medir",
+            precio_de_compra=8.000,
+            precio_de_venta=12.000,
+            cant=4,
+            tipo_id=3,
+            tipo=ferre,
+            date=datetime.now(),
+        )
+        p5 = Producto(
+            nombre="metro 15m",
+            descripcion="metro para medir",
+            precio_de_compra=8.000,
+            precio_de_venta=12.000,
+            cant=4,
+            tipo_id=3,
+            tipo=ferre,
+            date=datetime.now(),
+        )
+        session.add_all([p1, p2, p3, p4, p5])
+        session.commit()
+        session.close()
