@@ -36,7 +36,8 @@ class requestProductoEdit(BaseModel):
 
 
 class requestProductoPrecio(BaseModel):
-    porcentaje: int
+    porcentaje: str
+    lista: list[int]
 
 
 class requestBusqueda(BaseModel):
@@ -99,25 +100,22 @@ def bajaProducto(id):
     )
 
 
-@router.post("/actualizar/data/campos")
-def actualizarProductoCampos(request: requestProductoEdit):
+@router.post("/actualizar/data/campos/{id}")
+def actualizarProductoCampos(id, request: requestProducto):
     """se va a actualizar un producto en particular"""
-    print(request)
     db = Session(engine)
     if db.query(
-        exists()
-        .where(Producto.nombre == request.nombre)
-        .where(Producto.id != request.id)
+        exists().where(Producto.nombre == request.nombre).where(Producto.id != id)
     ).scalar():
         return JSONResponse(
             status_code=400,
             content={
-                "error": f"No se puede editar el producto con el id: {request.id}, por que ya existe un producto con el mismo nombre"
+                "error": f"No se puede editar el producto con el id: {id}, por que ya existe un producto con el mismo nombre"
             },
         )
     stmt = (
         update(Producto)
-        .where(Producto.id == request.id)
+        .where(Producto.id == id)
         .values(
             nombre=request.nombre,
             descripcion=request.descripcion,
@@ -138,20 +136,23 @@ def actualizarProductoCampos(request: requestProductoEdit):
 
 @router.post("/actualizar/data")
 def actualizarPrecioProductos(request: requestProductoPrecio):
-    """se va a actualizar el precio de cada producto segun el tipo seleccionado"""
+    """se va a actualizar el precio de los productos que se pasan por lista segun el porcentaje deseado"""
     db = Session(engine)
-    todos = db.query(Producto).all()
-    for producto in todos:
-        aumento = producto.precio_de_compra * (request.porcentaje / 100)
-        stmt = (
-            update(Producto)
-            .where(Producto.id == producto.id)
-            .values(
-                precio_de_venta=producto.precio_de_compra + aumento,
+
+    for prodSelec in request.lista:
+        producto = db.query(Producto).get(int(prodSelec))
+        aumento = (producto.precio_de_compra * int(request.porcentaje)) / 100
+        if int(prodSelec) == int(producto.id):
+            stmt = (
+                update(Producto)
+                .where(Producto.id == int(prodSelec))
+                .values(
+                    precio_de_venta=producto.precio_de_compra + aumento,
+                    date=datetime.now(),
+                )
             )
-        )
-        db.execute(stmt)
-        db.commit()
+            db.execute(stmt)
+    db.commit()
     db.close()
     return JSONResponse(
         status_code=200,
@@ -178,7 +179,7 @@ def obtenerProducto(id):
 
 @router.get("/lista/{page}")
 def listaProducto(page):
-    """obtener todos los productos"""
+    """obtener todos los productos paginados sin filtro"""
     db = Session(engine)
     lista_productos = db.query(Producto).filter(Producto.logico == True).all()
     db.close()
@@ -218,7 +219,7 @@ def listaProductoTipo(page, tipo):
 
 @router.get("/lista/Nombre/{page}/{nombre}")
 def listaProductoNombre(page, nombre):
-    """obtener todos los productos segun el tipo"""
+    """obtener todos los productos segun el tipo segun el nombre"""
     db = Session(engine)
     lista_productos = (
         db.query(Producto)
@@ -241,7 +242,7 @@ def listaProductoNombre(page, nombre):
 
 @router.get("/lista/TipoYNombre/{page}/{tipo}/{nombre}")
 def listaProductoTipoYNombre(page, tipo, nombre):
-    """obtener todos los productos segun el tipo"""
+    """obtener todos los productos segun el tipo y nombre"""
     db = Session(engine)
     lista_productos = (
         db.query(Producto)
@@ -265,7 +266,7 @@ def listaProductoTipoYNombre(page, tipo, nombre):
 
 @router.get("/lista/preciosTipo/{tipo}")
 def obtenerlistaPreciosTipo(tipo):
-    """obtener todos los productos segun el tipo"""
+    """obtener todos los productos segun el tipo para la imcrementacion de los productos"""
     db = Session(engine)
     lista_productos = (
         db.query(Producto)
@@ -274,18 +275,21 @@ def obtenerlistaPreciosTipo(tipo):
         .all()
     )
     db.close()
+    for prod in lista_productos:
+        prod.date = prod.date.date()
     return {
         "items": lista_productos,
     }
 
 
-@router.get("/lista/precios")
+@router.get("/lista/precios/todos/increm")
 def obtenerListaPrecios():
-    """obtener todos los productos sin paginacion"""
+    """obtener todos los productos sin paginacion para la seccion de incremenracion de precio"""
     db = Session(engine)
     lista_productos = db.query(Producto).filter(Producto.logico == True).all()
     db.close()
-    print(lista_productos)
+    for prod in lista_productos:
+        prod.date = prod.date.date()
     return {
-        "items": "string",
+        "items": lista_productos,
     }

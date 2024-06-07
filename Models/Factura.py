@@ -1,4 +1,3 @@
-from datetime import datetime
 from sqlalchemy import (
     func,
     String,
@@ -28,12 +27,13 @@ class Factura(Base):
     id = Column(Integer, primary_key=True)
     total = Column(String(30))
     logico = Column(Boolean, default=True)
+    fecha_y_hora = Column(DateTime)
     productos = relationship("Producto", secondary=asociacion_tabla, lazy="joined")
 
-    def __init__(self, fecha_y_hora, total, producto_id):
+    def __init__(self, fecha_y_hora, total, productos):
         self.fecha_y_hora = fecha_y_hora
         self.total = total
-        self.producto_id = producto_id
+        self.productos = productos
 
     def __repr__(self):
         return {
