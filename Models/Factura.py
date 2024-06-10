@@ -40,4 +40,5 @@ class Factura(Base):
             "id": self.id,
             "fecha_y_hora": self.fecha_y_hora,
             "total": self.total,
+            "productos": self.productos,
         }

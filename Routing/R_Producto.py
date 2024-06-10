@@ -44,6 +44,7 @@ class requestBusqueda(BaseModel):
     nombre: str
 
 
+# realizar ultimo chequeo
 @router.post("/alta")
 def altaProducto(requestData: requestProducto):
     """se va a realizar una carga de un producto"""
@@ -81,6 +82,7 @@ def altaProducto(requestData: requestProducto):
     )
 
 
+# realizar ultimo chequeo
 @router.post("/eliminarProducto/{id}")
 def bajaProducto(id):
     """se va a realizar una baja logica"""
@@ -100,6 +102,7 @@ def bajaProducto(id):
     )
 
 
+# realizar ultimo chequeo
 @router.post("/actualizar/data/campos/{id}")
 def actualizarProductoCampos(id, request: requestProducto):
     """se va a actualizar un producto en particular"""
@@ -134,6 +137,7 @@ def actualizarProductoCampos(id, request: requestProducto):
     )
 
 
+# realizar ultimo chequeo
 @router.post("/actualizar/data")
 def actualizarPrecioProductos(request: requestProductoPrecio):
     """se va a actualizar el precio de los productos que se pasan por lista segun el porcentaje deseado"""
@@ -162,6 +166,7 @@ def actualizarPrecioProductos(request: requestProductoPrecio):
     )
 
 
+# realizar ultimo chequeo
 @router.get("/{id}")
 def obtenerProducto(id):
     """obtener un producto segun su id"""
@@ -177,13 +182,14 @@ def obtenerProducto(id):
         )
 
 
+# realizar ultimo chequeo
 @router.get("/lista/{page}")
 def listaProducto(page):
     """obtener todos los productos paginados sin filtro"""
     db = Session(engine)
     lista_productos = db.query(Producto).filter(Producto.logico == True).all()
     db.close()
-    lista_paginada = paginate.Page(lista_productos, page=page, items_per_page=6)
+    lista_paginada = paginate.Page(lista_productos, page=page, items_per_page=10)
     print("listado normal")
     return {
         "items": lista_paginada,
@@ -194,6 +200,7 @@ def listaProducto(page):
     }
 
 
+# realizar ultimo chequeo
 @router.get("/lista/Tipo/{page}/{tipo}")
 def listaProductoTipo(page, tipo):
     """obtener todos los productos segun el tipo"""
@@ -217,6 +224,7 @@ def listaProductoTipo(page, tipo):
     }
 
 
+# realizar ultimo chequeo
 @router.get("/lista/Nombre/{page}/{nombre}")
 def listaProductoNombre(page, nombre):
     """obtener todos los productos segun el tipo segun el nombre"""
@@ -240,6 +248,7 @@ def listaProductoNombre(page, nombre):
     }
 
 
+# realizar ultimo chequeo
 @router.get("/lista/TipoYNombre/{page}/{tipo}/{nombre}")
 def listaProductoTipoYNombre(page, tipo, nombre):
     """obtener todos los productos segun el tipo y nombre"""
@@ -264,6 +273,7 @@ def listaProductoTipoYNombre(page, tipo, nombre):
     }
 
 
+# realizar ultimo chequeo
 @router.get("/lista/preciosTipo/{tipo}")
 def obtenerlistaPreciosTipo(tipo):
     """obtener todos los productos segun el tipo para la imcrementacion de los productos"""
@@ -282,6 +292,7 @@ def obtenerlistaPreciosTipo(tipo):
     }
 
 
+# realizar ultimo chequeo
 @router.get("/lista/precios/todos/increm")
 def obtenerListaPrecios():
     """obtener todos los productos sin paginacion para la seccion de incremenracion de precio"""
