@@ -13,20 +13,20 @@ router = APIRouter(prefix="/factura", tags=["Factura"])
 
 
 class requestFactura(BaseModel):
-    total: float
-    productos: dict
+    productos: list[dict]
 
 
 def calcularTotal(productos):
     total = 0
     for producto in productos:
-        total = total + producto.precio_de_venta
+        total = total + (producto.precio_de_venta * producto.cantProducto)
     return total
 
 
 # probar si anda
 @router.post("/altaFactura")
 def altaFactura(request: requestFactura):
+    # comflicto con la estructura de la factura
     total = calcularTotal(request.productos)
     db = Session(engine)
     factura = Factura(datetime.now(), total, request.productos)
