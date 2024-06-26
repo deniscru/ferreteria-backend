@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists
 from sqlalchemy import update
 from Models.Factura import Factura
+from Models.Producto import Producto
 from bbdd import engine
 from pydantic import BaseModel
 from datetime import datetime
@@ -16,20 +17,40 @@ class requestFactura(BaseModel):
     productos: list[dict]
 
 
-def calcularTotal(productos):
-    total = 0
-    for producto in productos:
-        total = total + (producto.precio_de_venta * producto.cantProducto)
-    return total
-
-
 # probar si anda
 @router.post("/altaFactura")
 def altaFactura(request: requestFactura):
-    # comflicto con la estructura de la factura
-    total = calcularTotal(request.productos)
+
     db = Session(engine)
-    factura = Factura(datetime.now(), total, request.productos)
+    lista = []
+    total = 0
+    for prod in request.productos:
+        # falta comprobar por seguridad la existencia del producto
+        print(prod)
+        producto = db.query(Producto).get(prod["id"])
+        if prod["cant"] > producto.cant:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "mensaje": "La cantidad de productos vendido supera al disponible"
+                },
+            )
+        else:
+            stmt = (
+                update(Producto)
+                .where(Producto.id == int(prod["id"]))
+                .values(
+                    cant=producto.cant - prod["cant"],
+                    date=datetime.now(),
+                )
+            )
+            db.execute(stmt)
+        for i in range(prod["cant"]):
+            lista.append(producto)
+
+        total = total + (producto.precio_de_venta * prod["cant"])
+
+    factura = Factura(datetime.now(), total, lista)
     db.add(factura)
     db.commit()
     db.close()
