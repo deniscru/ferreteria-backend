@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists
 from sqlalchemy import update
-from Models.Factura import Factura
+from Models.Factura import Factura, asociacion_tabla
 from Models.Producto import Producto
 from bbdd import engine
 from pydantic import BaseModel
@@ -17,7 +17,7 @@ class requestFactura(BaseModel):
     productos: list[dict]
 
 
-# probar si anda
+# chequeado
 @router.post("/altaFactura")
 def altaFactura(request: requestFactura):
 
@@ -25,8 +25,6 @@ def altaFactura(request: requestFactura):
     lista = []
     total = 0
     for prod in request.productos:
-        # falta comprobar por seguridad la existencia del producto
-        print(prod)
         producto = db.query(Producto).get(prod["id"])
         if prod["cant"] > producto.cant:
             return JSONResponse(
@@ -59,8 +57,8 @@ def altaFactura(request: requestFactura):
     )
 
 
-# probar si anda
-@router.post("/eliminarFactura/{id}")
+# chequeado
+@router.post("/eliminar/{id}")
 def eliminarFactura(id):
     db = Session(engine)
     if not db.query(exists().where(Factura.id == id)).scalar():
@@ -74,7 +72,7 @@ def eliminarFactura(id):
     db.close()
     return JSONResponse(
         status_code=200,
-        content={"mensaje": "El producto se elimino correctamente"},
+        content={"mensaje": "La factura se elimino correctamente"},
     )
 
 
@@ -93,7 +91,7 @@ def obtenerFacturaId(id):
         )
 
 
-# probar si anda
+# chequeado
 @router.get("/lista/{page}")
 def listaFacturas(page):
     db = Session(engine)
@@ -107,3 +105,17 @@ def listaFacturas(page):
         "anterior": lista_paginada.previous_page,
         "actual": page,
     }
+
+
+# falta armar la estructura del dato a devolver
+@router.get("/lista/productos/{id}")
+def FacListaProductos(id):
+    db = Session(engine)
+    lista_productos = (
+        db.query(asociacion_tabla)
+        .filter(asociacion_tabla.columns.factura_id == id)
+        .all()
+    )
+    print(len(lista_productos))
+    db.close()
+    return {"lista": lista_productos}
