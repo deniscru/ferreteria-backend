@@ -41,3 +41,6 @@ class Producto(Base):
 
     def __repr__(self):
         return {"id": self.id, "nombre": self.nombre, "descripcion": self.descripcion}
+
+    def __str__(self):
+        return "Nombre: " + self.nombre

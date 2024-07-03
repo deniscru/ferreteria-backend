@@ -36,9 +36,10 @@ class Factura(Base):
         self.productos = productos
 
     def __repr__(self):
-        return {
-            "id": self.id,
-            "fecha_y_hora": self.fecha_y_hora,
-            "total": self.total,
-            "productos": self.productos,
-        }
+        return {"id": self.id, "fecha_y_hora": self.fecha_y_hora, "total": self.total}
+
+    def __str__(self):
+        return "Nombre:" + self.total
+
+    def listProductos(self):
+        return self.productos
