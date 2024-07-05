@@ -11,8 +11,6 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, relationship
 from bbdd import Base
 
-print("se ejecutp")
-
 asociacion_tabla = Table(
     "asociacion_tabla",
     Base.metadata,

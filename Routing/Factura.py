@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists
-from sqlalchemy import update
+from sqlalchemy import update, select, func
 from Models.Factura import Factura, asociacion_tabla
 from Models.Producto import Producto
 from bbdd import engine
@@ -128,26 +128,31 @@ def listaFacturas():
 @router.get("/lista/productos/{id}")
 def FacListaProductos(id):
     db = Session(engine)
-    facturas = db.query(Factura).filter(Factura.id == id).all()
-    lista_productos = (
-        db.query(asociacion_tabla)
-        .filter(asociacion_tabla.columns.factura_id == id)
-        .all()
+
+    consulta_aux = (
+        select(
+            Producto.nombre,
+            Producto.precio_de_venta,
+            Producto.precio_de_compra,
+            asociacion_tabla.columns.producto_id,
+            func.count(asociacion_tabla.columns.producto_id),
+        )
+        .join_from(Producto, asociacion_tabla)
+        .where(asociacion_tabla.columns.factura_id == id)
+        .group_by(asociacion_tabla.columns.producto_id)
     )
 
-    if len(lista_productos) == 0:
-        return JSONResponse(
-            status_code=404,
-            content={"error": f"No existe la factura con el id: {id}"},
+    facturas = db.execute(consulta_aux)
+    lista = []
+    for nombre, pVenta, pCompra, idP, cant in facturas:
+        lista.append(
+            {
+                "nombre": nombre,
+                "prVenta": pVenta,
+                "prCompra": pCompra,
+                "id": idP,
+                "cant": cant,
+            }
         )
-    prod_cant = {}
-    for dato1, dato2 in lista_productos:
-        if dato2 in prod_cant.keys():
-            prod_cant[dato2] += 1
-        else:
-            prod_cant[dato2] = 0
-
-    listProductos = facturas[0].listProductos()
-
     db.close()
-    return {"lista": listProductos, "lista_cant": prod_cant}
+    return {"lista": lista}
