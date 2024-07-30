@@ -224,16 +224,24 @@ def listaProductoTipo(page, tipo):
 
 
 # Chequeado
-@router.get("/lista/Nombre/{page}/{nombre}")
-def listaProductoNombre(page, nombre):
+@router.get("/lista/NombreOCodigo/{page}/{dato}")
+def listaProductoNombre(page, dato):
     """obtener todos los productos segun el tipo segun el nombre"""
     db = Session(engine)
-    lista_productos = (
-        db.query(Producto)
-        .filter(Producto.logico == True)
-        .filter(Producto.nombre.like("%" + nombre + "%"))
-        .all()
-    )
+    if not dato.isdigit():
+        lista_productos = (
+            db.query(Producto)
+            .filter(Producto.logico == True)
+            .filter(Producto.nombre.like("%" + dato + "%"))
+            .all()
+        )
+    else:
+        lista_productos = (
+            db.query(Producto)
+            .filter(Producto.logico == True)
+            .filter(Producto.id == dato)
+            .all()
+        )
     db.close()
     lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=5)
     print("filtro por nombre")
@@ -248,17 +256,26 @@ def listaProductoNombre(page, nombre):
 
 
 # Chequeado
-@router.get("/lista/TipoYNombre/{page}/{tipo}/{nombre}")
-def listaProductoTipoYNombre(page, tipo, nombre):
+@router.get("/lista/TipoYNombreOCodigo/{page}/{tipo}/{dato}")
+def listaProductoTipoYNombre(page, tipo, dato):
     """obtener todos los productos segun el tipo y nombre"""
     db = Session(engine)
-    lista_productos = (
-        db.query(Producto)
-        .filter(Producto.logico == True)
-        .filter(Producto.tipo_id == tipo)
-        .filter(Producto.nombre.like("%" + nombre + "%"))
-        .all()
-    )
+    if not dato.isdigit():
+        lista_productos = (
+            db.query(Producto)
+            .filter(Producto.logico == True)
+            .filter(Producto.tipo_id == tipo)
+            .filter(Producto.nombre.like("%" + dato + "%"))
+            .all()
+        )
+    else:
+        lista_productos = (
+            db.query(Producto)
+            .filter(Producto.logico == True)
+            .filter(Producto.tipo_id == tipo)
+            .filter(Producto.id == dato)
+            .all()
+        )
     db.close()
     lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=5)
 
