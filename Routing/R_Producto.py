@@ -144,6 +144,7 @@ def actualizarPrecioProductos(request: requestProductoPrecio):
     db = Session(engine)
 
     for prodSelec in request.lista:
+        print(prodSelec)
         producto = db.query(Producto).get(int(prodSelec))
         aumento = (producto.precio_de_compra * int(request.porcentaje)) / 100
         if int(prodSelec) == int(producto.id):
@@ -189,8 +190,9 @@ def listaProducto(page):
     db = Session(engine)
     lista_productos = db.query(Producto).filter(Producto.logico == True).all()
     db.close()
+    for prod in lista_productos:
+        prod.date = prod.date.date()
     lista_paginada = paginate.Page(lista_productos, page=page, items_per_page=10)
-    print("listado normal")
     return {
         "items": lista_paginada,
         "total_paginas": lista_paginada.page_count,
@@ -212,7 +214,9 @@ def listaProductoTipo(page, tipo):
         .all()
     )
     db.close()
-    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=6)
+    for prod in lista_productos:
+        prod.date = prod.date.date()
+    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=10)
 
     return {
         "items": lista_paginada,
@@ -243,8 +247,9 @@ def listaProductoNombre(page, dato):
             .all()
         )
     db.close()
-    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=5)
-    print("filtro por nombre")
+    for prod in lista_productos:
+        prod.date = prod.date.date()
+    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=10)
 
     return {
         "items": lista_paginada,
@@ -277,7 +282,9 @@ def listaProductoTipoYNombre(page, tipo, dato):
             .all()
         )
     db.close()
-    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=5)
+    for prod in lista_productos:
+        prod.date = prod.date.date()
+    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=10)
 
     return {
         "items": lista_paginada,
