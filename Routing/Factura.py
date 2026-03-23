@@ -1,25 +1,31 @@
+"""APi de la factura, realizacion del GRUD haci la base de datos, 
+y funciones de solucitud hacia la BBDD"""
+
+from datetime import datetime
+import paginate
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists
-from sqlalchemy import update, select, func
+from pydantic import BaseModel
 from Models.Factura import Factura, asociacion_tabla
 from Models.Producto import Producto
 from bbdd import engine
-from pydantic import BaseModel
-from datetime import datetime
-import paginate
+
 
 router = APIRouter(prefix="/factura", tags=["Factura"])
 
 
-class requestFactura(BaseModel):
+class RequestFactura(BaseModel):
+    """Estructura de datos de los datos a recibir"""
     productos: list[dict]
 
 
 # chequeado
 @router.post("/altaFactura")
-def altaFactura(request: requestFactura):
+def alta_factura(request: RequestFactura):
+    """Api del alta de una factura a la base de datos"""
 
     db = Session(engine)
     lista = []
@@ -59,7 +65,8 @@ def altaFactura(request: requestFactura):
 
 # chequeado
 @router.post("/eliminar/{id}")
-def eliminarFactura(id):
+def eliminar_factura(id):
+    """Elimina una factura de la BBDD con el ID recibido"""
     db = Session(engine)
     if not db.query(exists().where(Factura.id == id)).scalar():
         return JSONResponse(
@@ -78,7 +85,9 @@ def eliminarFactura(id):
 
 # probar si anda
 @router.get("/{id}")
-def obtenerFacturaId(id):
+def obtener_facturaid(id):
+    """Realiza un busqueda de una factura por el ID recibido y en caso de encontrarlo, 
+        devuelve los datos del mismo"""
     db = Session(engine)
     factura = db.query(Factura).get(id)
     db.close()
@@ -93,9 +102,10 @@ def obtenerFacturaId(id):
 
 # chequeado
 @router.get("/lista/{page}")
-def listaFacturas(page):
+def lista_facturas(page):
+    """Devuelve una lista de facturas paginada"""
     db = Session(engine)
-    lista_facturas = db.query(Factura).filter(Factura.logico == True).all()
+    lista_facturas = db.query(Factura).filter(bool(Factura.logico)).all()
     db.close()
     lista_paginada = paginate.Page(lista_facturas, page=page, items_per_page=10)
 
@@ -110,9 +120,10 @@ def listaFacturas(page):
 
 # chequeado
 @router.get("/lista/venta/hoy")
-def listaFacturas():
+def lista_facturas_hoy():
+    """Devuelve una lista de todas las facturas realizadas en el dia de hoy, sin paginacion"""
     db = Session(engine)
-    lista_facturas = db.query(Factura).filter(Factura.logico == True).all()
+    lista_facturas = db.query(Factura).filter(bool(Factura.logico)).all() #Chequear si el true es necesario
 
     lista_nuevo = []
     for i in lista_facturas:
@@ -126,7 +137,8 @@ def listaFacturas():
 
 # Chequeado
 @router.get("/lista/productos/{id}")
-def FacListaProductos(id):
+def fac_lista_productos(id):
+    """Devuelve una lista de todos los productos de una factura realizada"""
     db = Session(engine)
 
     consulta_aux = (
@@ -134,7 +146,7 @@ def FacListaProductos(id):
             Producto.nombre,
             Producto.precio_de_venta,
             Producto.precio_de_compra,
-            asociacion_tabla.columns.producto_id,
+            asociacion_tabla.columns.producto_id, 
             func.count(asociacion_tabla.columns.producto_id),
         )
         .join_from(Producto, asociacion_tabla)
@@ -144,13 +156,13 @@ def FacListaProductos(id):
 
     facturas = db.execute(consulta_aux)
     lista = []
-    for nombre, pVenta, pCompra, idP, cant in facturas:
+    for nombre, pr_venta, pr_compra, idp, cant in facturas:
         lista.append(
             {
                 "nombre": nombre,
-                "prVenta": pVenta,
-                "prCompra": pCompra,
-                "id": idP,
+                "prVenta": pr_venta,
+                "prCompra": pr_compra,
+                "id": idp,
                 "cant": cant,
             }
         )

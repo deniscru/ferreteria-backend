@@ -1,12 +1,16 @@
+"""Cargar datos a la base de datos por default"""
+
 from sqlalchemy.orm import Session
 from bbdd import engine
+from datetime import datetime
 from Models.Tipo import Tipo
 from Models.Producto import Producto
-from Models.Tipo_Material import Tipo_Material
-from datetime import datetime
+from Models.Tipo_Material import TipoMaterial
+
 
 
 def add_tipos():
+    """Funcion a luego describir"""
     with Session(engine) as session:
         t1 = Tipo(nombre="Electricidad")
         t2 = Tipo(nombre="Plomeria")
@@ -17,24 +21,25 @@ def add_tipos():
         session.commit()
         session.close()
 
-    """db.execute(
-        "INSERT INTO `tipos` VALUES (1,'Electricidad', 1),(2,'Plomeria', 1),(3,'Ferreteria', 1),(4,'Limpieza', 1);"
-    )"""
-
+    #db.execute(
+    #    "INSERT INTO `tipos` VALUES (1,'Electricidad', 1),(2,'Plomeria', 1),(3,'Ferreteria', 1),(4,'Limpieza', 1);"
+    #)
 
 def add_tipos_material():
+    """Funcion a luego describir"""
     with Session(engine) as session:
-        t1 = Tipo_Material(nombre="politileno")
-        t2 = Tipo_Material(nombre="termo fusion")
-        t3 = Tipo_Material(nombre="polipropileno o pp")
-        t4 = Tipo_Material(nombre="PVP")
-        t5 = Tipo_Material(nombre="awaduc")
+        t1 = TipoMaterial(nombre="politileno")
+        t2 = TipoMaterial(nombre="termo fusion")
+        t3 = TipoMaterial(nombre="polipropileno o pp")
+        t4 = TipoMaterial(nombre="PVP")
+        t5 = TipoMaterial(nombre="awaduc")
     session.add_all([t1, t2, t3, t4, t5])
     session.commit()
     session.close()
 
 
 def add_productos():
+    """Funcion a luego describir"""
     with Session(engine) as session:
         ferre = session.query(Tipo).get(3)
         elec = session.query(Tipo).get(1)
@@ -145,8 +150,8 @@ def add_productos():
         session.commit()
         session.close()
 
-
 def ferreteria():
+    """Funcion a luego describir"""
     with Session(engine) as session:
         ferre = session.query(Tipo).get(3)
         p1 = Producto(

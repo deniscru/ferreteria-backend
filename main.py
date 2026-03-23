@@ -1,12 +1,11 @@
+"""Archivo de configuracion del sistema"""
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from Models import *
-from bbdd import engine, Base
-from seeder import add_productos, add_tipos, add_tipos_material, ferreteria
 from Routing import R_Producto, R_Tipo, Factura
+# from seeder import add_tipos, add_productos, add_tipos_material, ferreteria 
 
 tags_metadata = []
-# Base.metadata.create_all(engine)
 
 app = FastAPI()
 origins = ["*"]

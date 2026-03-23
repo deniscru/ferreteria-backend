@@ -1,10 +1,14 @@
+"""Diseño de la tabla relacional de los Articulos de Limpieza"""
+
 from __future__ import annotations
 from sqlalchemy import DateTime, ForeignKey, Boolean, Column, Float, Integer
 from sqlalchemy.orm import relationship
 from bbdd import Base
 
 
-class Art_Limpieza(Base):
+class ArtLimpieza(Base):
+    """Tabla de Articulo de limpieza"""
+
     __tablename__ = "art_limpieza"
 
     id = Column(Integer, primary_key=True)
@@ -24,7 +28,7 @@ class Art_Limpieza(Base):
         self.producto = prod
         self.producto_id = prod_id
 
-    def __repr__(self):
+    def __dict__(self):
         return {
             "id": self.id,
             "1litro": self.pr_venta_1litro,
