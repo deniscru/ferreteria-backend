@@ -1,7 +1,7 @@
 """Cargar datos a la base de datos por default"""
 
 from sqlalchemy.orm import Session
-from bbdd import engine
+from bbdd import Base, engine
 from datetime import datetime
 from Models.Tipo import Tipo
 from Models.Producto import Producto
@@ -13,9 +13,9 @@ def add_tipos():
     """Funcion a luego describir"""
     with Session(engine) as session:
         t1 = Tipo(nombre="Electricidad")
-        t2 = Tipo(nombre="Plomeria")
-        t3 = Tipo(nombre="Ferreteria")
-        t4 = Tipo(nombre="Limpieza")
+        t2 = Tipo("Plomeria")
+        t3 = Tipo("Ferreteria")
+        t4 = Tipo("Limpieza")
 
         session.add_all([t1, t2, t3, t4])
         session.commit()
@@ -207,3 +207,6 @@ def ferreteria():
         session.add_all([p1, p2, p3, p4, p5])
         session.commit()
         session.close()
+
+def eliminar_tablas():
+    Base.metadata.drop_all(engine)

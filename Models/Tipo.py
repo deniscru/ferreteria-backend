@@ -1,7 +1,8 @@
 """Diseño de la tabla relacional de los tipos de los productos"""
 
 from __future__ import annotations
-from sqlalchemy import Boolean, String, Column, Integer
+from sqlalchemy import Boolean, String
+from sqlalchemy.orm import Mapped, mapped_column
 from bbdd import Base
 
 
@@ -9,19 +10,18 @@ class Tipo(Base):
     """Tabla del Tipo y sus atributos"""
     __tablename__ = "tipos"
 
-    id = Column(Integer, primary_key=True)
-    nombre = Column(String(30))
-    logico = Column(Boolean, default=True)
+    id:Mapped[int] = mapped_column(primary_key=True, name="id")
+    _nombre:Mapped[str] = mapped_column(String(30), name="nombre")
+    _logico:Mapped[bool] = mapped_column(Boolean, default=True, name="logico")
 
     def __init__(self, nombre):
         self.nombre = nombre
 
-    def __dict__(self):
-        return {
-            "id": self.id,
-            "nombre": self.nombre,
-        }
+    @property
+    def nombre(self):
+        return self._nombre
     
-    def __repr__(self):
-        string= "id: "+self.id+" Nombre:"+self.nombre
-        return string
+    @nombre.setter
+    def nombre(self, valor):
+        self._nombre= valor
+    
