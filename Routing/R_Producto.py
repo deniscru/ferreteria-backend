@@ -42,7 +42,7 @@ class RequestProductoEdit(BaseModel):
 
 class RequestProductoPrecio(BaseModel):
     """Formato de datos que vamos a recibir para aumentar el precio de un producto"""
-    porcentaje: str
+    porcentaje: int
     lista: list[int]
 
 
@@ -50,8 +50,20 @@ class RequestBusqueda(BaseModel):
     """Formato de datos para recibir un nombre de producto y generar una busqueda de ella """
     nombre: str
 
+#pasarlo a un archivo nuevo de metodos helper
+def paginacion_de_lista(lista, page=1):
+    for prod in lista:
+        prod.date = prod.date.date()
+    lista_paginada = paginate.Page(lista, page=page, items_per_page=10)
+    return {
+        "items": lista_paginada,
+        "total_paginas": lista_paginada.page_count,
+        "siguiente": lista_paginada.next_page,
+        "anterior": lista_paginada.previous_page,
+        "actual": page,
+    }
 
-# realizar ultimo chequeo
+# ultimo chequeo realizado es el: 26/3/2026
 @router.post("/alta")
 def alta_producto(request: RequestProducto):
     """se va a realizar una carga de un producto"""
@@ -73,7 +85,7 @@ def alta_producto(request: RequestProducto):
         date=datetime.now(),
     )
     # Checkear q no exista un Producto con el mismo nombre
-    if db.query(exists().where(Producto.nombre == producto.nombre)).scalar():
+    if db.query(exists().where(Producto._nombre == producto.nombre)).scalar():
         return JSONResponse(
             status_code=400,
             content={
@@ -85,21 +97,21 @@ def alta_producto(request: RequestProducto):
     db.close()
 
     return JSONResponse(
-        status_code=200, content={"mensaje": "Menú agregado correctamente"}
+        status_code=200, content={"mensaje": "Producto agregado correctamente"}
     )
 
 
 # chequeado
-@router.post("/eliminarProducto/{idpr}")
-def baja_producto(idpr):
+@router.post("/eliminarProducto/{id}")
+def baja_producto(id):
     """se va a realizar una baja logica"""
     db = Session(engine)
-    if not db.query(exists().where(Producto.id == idpr)).scalar():
+    if not db.query(exists().where(Producto.id == id)).scalar():
         return JSONResponse(
             status_code=400,
-            content={"error": f"No existe un producto con el id: {idpr}"},
+            content={"error": f"No existe un producto con el id: {id}"},
         )
-    stmt = update(Producto).where(Producto.id == idpr).values(logico=False)
+    stmt = update(Producto).where(Producto.id == id).values(logico=False)
     db.execute(stmt)
     db.commit()
     db.close()
@@ -115,7 +127,7 @@ def actualizar_producto_campos(ida, request: RequestProducto):
     """se va a actualizar un producto en particular"""
     db = Session(engine)
     if db.query(
-        exists().where(Producto.nombre == request.nombre).where(Producto.id != ida)
+        exists().where(Producto._nombre == request.nombre).where(Producto.id != ida)
     ).scalar():
         return JSONResponse(
             status_code=400,
@@ -128,12 +140,12 @@ def actualizar_producto_campos(ida, request: RequestProducto):
         update(Producto)
         .where(Producto.id == ida)
         .values(
-            nombre=request.nombre,
-            descripcion=request.descripcion,
-            precio_de_compra=request.precio_de_compra,
-            precio_de_venta=request.precio_de_venta,
-            cant=request.cant,
-            tipo_id=request.tipo_id,
+            _nombre=request.nombre,
+            _descripcion=request.descripcion,
+            _precio_de_compra=request.precio_de_compra,
+            _precio_de_venta=request.precio_de_venta,
+            _cant=request.cant,
+            _tipo_id=request.tipo_id,
         )
     )
     db.execute(stmt)
@@ -151,9 +163,8 @@ def actualizar_precio_productos(request: RequestProductoPrecio):
     """ se va a actualizar el precio de los productos 
         que se pasan por lista segun el porcentaje deseado"""
     db = Session(engine)
-
+    #debo chequear si las id de la lista existen en la BD 
     for producto in request.lista:
-        print(producto)
         prod = db.query(Producto).get(int(producto))
         aumento = (prod.precio_de_compra * int(request.porcentaje)) / 100
         if int(producto) == int(prod.id):
@@ -161,8 +172,8 @@ def actualizar_precio_productos(request: RequestProductoPrecio):
                 update(Producto)
                 .where(Producto.id == int(producto))
                 .values(
-                    precio_de_venta=prod.precio_de_compra + aumento,
-                    date=datetime.now(),
+                    _precio_de_venta=prod.precio_de_compra + aumento,
+                    _date=datetime.now(),
                 )
             )
             db.execute(stmt)
@@ -199,16 +210,7 @@ def lista_producto(page):
     db = Session(engine)
     lista_productos = db.query(Producto).filter(bool(Producto.logico)).all()
     db.close()
-    for prod in lista_productos:
-        prod.date = prod.date.date()
-    lista_paginada = paginate.Page(lista_productos, page=page, items_per_page=10)
-    return {
-        "items": lista_paginada,
-        "total_paginas": lista_paginada.page_count,
-        "siguiente": lista_paginada.next_page,
-        "anterior": lista_paginada.previous_page,
-        "actual": page,
-    }
+    return paginacion_de_lista(lista_productos, page)
 
 
 # Chequeado
@@ -219,21 +221,11 @@ def lista_producto_tipo(page, tipo):
     lista_productos = (
         db.query(Producto)
         .filter(bool(Producto.logico))
-        .filter(Producto.tipo_id == tipo)
+        .filter(Producto._tipo_id == tipo)
         .all()
     )
     db.close()
-    for prod in lista_productos:
-        prod.date = prod.date.date()
-    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=10)
-
-    return {
-        "items": lista_paginada,
-        "total_paginas": lista_paginada.page_count,
-        "siguiente": lista_paginada.next_page,
-        "anterior": lista_paginada.previous_page,
-        "actual": page,
-    }
+    return paginacion_de_lista(lista_productos, page=int(page))
 
 
 # Chequeado
@@ -245,7 +237,7 @@ def lista_producto_nombre(page, dato):
         lista_productos = (
             db.query(Producto)
             .filter(bool(Producto.logico))
-            .filter(Producto.nombre.like("%" + dato + "%"))
+            .filter(Producto._nombre.like("%" + dato + "%"))
             .all()
         )
     else:
@@ -256,17 +248,13 @@ def lista_producto_nombre(page, dato):
             .all()
         )
     db.close()
-    for prod in lista_productos:
-        prod.date = prod.date.date()
-    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=10)
-
-    return {
-        "items": lista_paginada,
-        "total_paginas": lista_paginada.page_count,
-        "siguiente": lista_paginada.next_page,
-        "anterior": lista_paginada.previous_page,
-        "actual": page,
-    }
+    if (len(lista_productos)==0):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": f"No se encontraron productos con el nombre: {dato}"
+            })
+    return paginacion_de_lista(lista_productos, page=int(page))
 
 
 # Chequeado
@@ -278,30 +266,20 @@ def lista_prod_tipo_nombre(page, tipo, dato):
         lista_productos = (
             db.query(Producto)
             .filter(bool(Producto.logico))
-            .filter(Producto.tipo_id == tipo)
-            .filter(Producto.nombre.like("%" + dato + "%"))
+            .filter(Producto._tipo_id == tipo)
+            .filter(Producto._nombre.like("%" + dato + "%"))
             .all()
         )
     else:
         lista_productos = (
             db.query(Producto)
             .filter(bool(Producto.logico))
-            .filter(Producto.tipo_id == tipo)
+            .filter(Producto._tipo_id == tipo)
             .filter(Producto.id == dato)
             .all()
         )
     db.close()
-    for prod in lista_productos:
-        prod.date = prod.date.date()
-    lista_paginada = paginate.Page(lista_productos, page=int(page), items_per_page=10)
-
-    return {
-        "items": lista_paginada,
-        "total_paginas": lista_paginada.page_count,
-        "siguiente": lista_paginada.next_page,
-        "anterior": lista_paginada.previous_page,
-        "actual": page,
-    }
+    return paginacion_de_lista(lista_productos, page=int(page))
 
 
 # realizar ultimo chequeo, agregar paginacion
@@ -312,7 +290,7 @@ def obtenerlista_preciostipo(tipo):
     lista_productos = (
         db.query(Producto)
         .filter(bool(Producto.logico))
-        .filter(Producto.tipo_id == tipo)
+        .filter(Producto._tipo_id == tipo)
         .all()
     )
     db.close()

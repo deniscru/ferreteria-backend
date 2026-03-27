@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from datetime import datetime
-from sqlalchemy import String, ForeignKey, Boolean, Column, Integer, Float, DateTime
+from sqlalchemy import String, ForeignKey, DateTime, update
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import relationship
 from bbdd import Base
@@ -13,13 +13,13 @@ class Producto(Base):
 
     __tablename__ = "productos"
 
-    _id:Mapped[int] = mapped_column(primary_key=True, name="id")
+    id:Mapped[int] = mapped_column(primary_key=True, name="id")
+    logico:Mapped[bool] = mapped_column(default=True)
     _nombre:Mapped[str] = mapped_column(String(300), name="nombre")
     _descripcion:Mapped[str] = mapped_column(String(300), name="descripcion")
     _precio_de_compra:Mapped[float] = mapped_column(name="precio_de_compra", default=0)
     _precio_de_venta:Mapped[float] = mapped_column(name="precio_de_venta", default=0)
     _cant:Mapped[int] = mapped_column(name="cant", default=0)
-    _logico:Mapped[bool] = mapped_column(default=True, name="logico")
     _date:Mapped[datetime] = mapped_column(DateTime, name="date")
     _tipo_id:Mapped[int] = mapped_column(ForeignKey("tipos.id"), name="tipo_id")
     _tipo = relationship("Tipo", lazy="joined")
@@ -44,6 +44,7 @@ class Producto(Base):
         self.tipo = tipo
         self.date = date
 
+
     @property
     def nombre(self):
         return self._nombre
@@ -63,10 +64,6 @@ class Producto(Base):
     @property
     def cant(self):
         return self._cant
-    
-    @property
-    def logico(self):
-        return self._logico
     
     @property
     def date(self):
@@ -100,10 +97,6 @@ class Producto(Base):
     @cant.setter
     def cant(self, cant):
         self._cant=cant
-
-    @logico.setter
-    def logico(self, logico):
-        self._logico= logico
 
     @date.setter
     def date(self, valor):
